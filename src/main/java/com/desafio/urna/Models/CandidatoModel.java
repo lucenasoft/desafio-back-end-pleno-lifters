@@ -14,7 +14,7 @@ public class CandidatoModel {
     @Column(name = "partido")
     private String partido;
 
-    @Column(name = "numero")
+    @Column(name = "numero", unique = true)
     private int numero;
 
     @Column(name = "votos")
@@ -23,11 +23,10 @@ public class CandidatoModel {
     public CandidatoModel() {
     }
 
-    public CandidatoModel(String nome, String partido, int numero, int votos) {
+    public CandidatoModel(String nome, String partido, int numero) {
         this.nome = nome;
         this.partido = partido;
         this.numero = numero;
-        this.votos = votos;
     }
 
     public int getId() {

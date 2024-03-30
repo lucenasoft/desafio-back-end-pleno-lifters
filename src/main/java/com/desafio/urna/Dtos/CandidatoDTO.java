@@ -19,17 +19,14 @@ public class CandidatoDTO {
     @Min(0)
     private int numero;
 
-    @Min(0)
-    private int votos;
 
     public CandidatoDTO() {
     }
 
-    public CandidatoDTO(String nome, String partido, int numero, int votos) {
+    public CandidatoDTO(String nome, String partido, int numero) {
         this.nome = nome;
         this.partido = partido;
         this.numero = numero;
-        this.votos = votos;
     }
 
     public String getNome() {
@@ -54,13 +51,5 @@ public class CandidatoDTO {
 
     public void setNumero(int numero) {
         this.numero = numero;
-    }
-
-    public int getVotos() {
-        return votos;
-    }
-
-    public void setVotos(int votos) {
-        this.votos = votos;
     }
 }
