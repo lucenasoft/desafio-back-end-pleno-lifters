@@ -167,7 +167,11 @@ public class CandadatoController {
         Optional<CandidatoModel> candidato = candidatoService.getCandidatoById(id);
         if (candidato.isEmpty()) return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body("Candidato não encontrado");
+                .body(Collections.singletonMap("message", "Candidato não encontrado"));
+
+        if (candidato.get().getVotos() > 0) return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap("message", "Candidato possui votos registrados"));
 
         candidatoService.deleteCandidato(id);
 
