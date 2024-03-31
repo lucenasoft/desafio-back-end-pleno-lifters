@@ -143,9 +143,7 @@ public class CandadatoController {
                 .body(Collections.singletonMap("message", "Nome de candidato já existe"));
 
         CandidatoModel candidato = new CandidatoModel(
-                candidatoDTO.getNome(),
-                candidatoDTO.getPartido(),
-                candidatoDTO.getNumero()
+                candidatoDTO.getNome()
         );
 
         candidatoService.updateCandidato(id, candidato);
@@ -169,9 +167,9 @@ public class CandadatoController {
                 .status(HttpStatus.NOT_FOUND)
                 .body(Collections.singletonMap("message", "Candidato não encontrado"));
 
-        if (candidato.get().getVotos() > 0) return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(Collections.singletonMap("message", "Candidato possui votos registrados"));
+        //if (candidato.get().getVotos() > 0) return ResponseEntity
+        //        .status(HttpStatus.CONFLICT)
+        //        .body(Collections.singletonMap("message", "Candidato possui votos registrados"));
 
         candidatoService.deleteCandidato(id);
 
