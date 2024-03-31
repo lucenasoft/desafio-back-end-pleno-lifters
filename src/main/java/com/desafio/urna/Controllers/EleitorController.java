@@ -1,9 +1,13 @@
 package com.desafio.urna.Controllers;
 
 import com.desafio.urna.Dtos.EleitorDTO;
+import com.desafio.urna.Dtos.VotoDTO;
 import com.desafio.urna.Errors.ErrorResponse;
 import com.desafio.urna.Models.EleitorModel;
+import com.desafio.urna.Models.VotoModel;
+import com.desafio.urna.Services.CandidatoService;
 import com.desafio.urna.Services.EleitorService;
+import com.desafio.urna.Services.VotoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,6 +38,12 @@ import java.util.Optional;
 public class EleitorController {
     @Autowired
     private EleitorService eleitorService;
+
+    @Autowired
+    private VotoService votoService;
+
+    @Autowired
+    private CandidatoService candidatoService;
 
     @Operation(summary = "Retorna todos os eleitores")
     @ApiResponses(value = {
@@ -174,5 +184,52 @@ public class EleitorController {
         eleitorService.deleteEleitor(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Collections.singletonMap("message", "Eleitor deletado com sucesso"));
+    }
+
+    @PostMapping("/{id}/votar")
+    @Operation(summary = "Vota em um candidato")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Voto computado com sucesso",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Erro ao computar voto",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Eleitor ou candidato não encontrado",
+                    content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Object> votar(
+            @PathVariable Long id,
+            @RequestBody @Valid VotoDTO votoDTO,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = new ArrayList<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errors.add(error.getField() + ": " + error.getDefaultMessage());
+            }
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                    "Validation error", System.currentTimeMillis());
+            errorResponse.setErrors(errors);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
+        Optional<EleitorModel> eleitor = eleitorService.getEleitorById(id);
+        if (eleitor.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", "Eleitor não encontrado"));
+        }
+
+        var candidato = candidatoService.getCandidatoById(votoDTO.getCandidato().getId());
+        if (candidato.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", "Candidato não encontrado"));
+        }
+
+        var voto = new VotoModel();
+        voto.setEleitor(eleitor.get());
+        voto.setCandidato(candidato.get());
+        votoService.saveVoto(voto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap("message", "Voto computado com sucesso"));
     }
 }
