@@ -19,7 +19,7 @@ public class CandidatoService {
         return candidatoRepository.findAll(pageable);
     }
 
-    public Optional<CandidatoModel> getCandidatoById(int id) {
+    public Optional<CandidatoModel> getCandidatoById(Long id) {
         return candidatoRepository.findById(id);
     }
 
@@ -33,13 +33,13 @@ public class CandidatoService {
     }
 
     @Transactional
-    public void updateCandidato(int id, CandidatoModel candidato) {
+    public void updateCandidato(Long id, CandidatoModel candidato) {
         candidato.setId(id);
         candidatoRepository.save(candidato);
     }
 
     @Transactional
-    public void deleteCandidato(int id) {
+    public void deleteCandidato(Long id) {
         candidatoRepository.deleteById(id);
     }
 }

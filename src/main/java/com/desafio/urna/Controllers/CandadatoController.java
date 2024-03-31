@@ -59,7 +59,7 @@ public class CandadatoController {
     })
     @Parameter(name = "id", description = "Id do candidato", required = true)
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getCandidatoById(Integer id) {
+    public ResponseEntity<Object> getCandidatoById(@PathVariable Long id) {
         Optional<CandidatoModel> candidato = candidatoService.getCandidatoById(id);
         if (candidato.isEmpty()) return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -119,7 +119,7 @@ public class CandadatoController {
     @Parameter(name = "id", description = "Id do candidato", required = true)
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCandidato(
-            @PathVariable(value = "id") Integer id,
+            @PathVariable(value = "id") Long id,
             @RequestBody @Valid CandidatoDTO candidatoDTO,
             BindingResult bindingResult
             ) {
@@ -143,9 +143,8 @@ public class CandadatoController {
                 .status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap("message", "Nome de candidato já existe"));
 
-        CandidatoModel candidato = new CandidatoModel(
-                candidatoDTO.getNome()
-        );
+        CandidatoModel candidato = new CandidatoModel();
+        BeanUtils.copyProperties(candidatoDTO, candidato);
 
         candidatoService.updateCandidato(id, candidato);
 
@@ -162,7 +161,7 @@ public class CandadatoController {
                     content = @Content(mediaType = "application/json"))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteCandidato(Integer id) {
+    public ResponseEntity<Object> deleteCandidato(@PathVariable Long id) {
         Optional<CandidatoModel> candidato = candidatoService.getCandidatoById(id);
         if (candidato.isEmpty()) return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

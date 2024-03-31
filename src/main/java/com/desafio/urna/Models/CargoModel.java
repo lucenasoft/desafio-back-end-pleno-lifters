@@ -2,8 +2,8 @@ package com.desafio.urna.Models;
 
 import jakarta.persistence.*;
 
-@Entity(name = "candidato")
-public class CandidatoModel {
+@Entity(name = "cargo")
+public class CargoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -11,14 +11,11 @@ public class CandidatoModel {
     @Column(name = "nome")
     private String nome;
 
-    @ManyToOne
-    @JoinColumn(name = "cargo_id")
-    private CargoModel cargo;
-
-    public CandidatoModel() {
+    public CargoModel() {
     }
 
-    public CandidatoModel(String nome) {
+    public CargoModel(Long id, String nome) {
+        this.id = id;
         this.nome = nome;
     }
 
@@ -26,12 +23,12 @@ public class CandidatoModel {
         return id;
     }
 
-    public String getNome() {
-        return nome;
-    }
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
     }
 
     public void setNome(String nome) {

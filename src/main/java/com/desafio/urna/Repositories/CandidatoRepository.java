@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface CandidatoRepository extends JpaRepository<CandidatoModel, Integer> {
+public interface CandidatoRepository extends JpaRepository<CandidatoModel, Long> {
     @Query("SELECT c FROM candidato c WHERE c.nome = ?1")
     CandidatoModel findByName(String nome);
 
