@@ -1,6 +1,5 @@
 package com.desafio.urna.Controllers;
 
-import com.desafio.urna.Dtos.CargoDTO;
 import com.desafio.urna.Errors.ErrorResponse;
 import com.desafio.urna.Models.CargoModel;
 import com.desafio.urna.Services.CargoService;
@@ -11,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -84,7 +82,7 @@ public class CargosController {
     })
     @PostMapping
     public ResponseEntity<Object> cadastrarCargo(
-            @RequestBody @Valid CargoDTO cargoDTO,
+            @RequestBody @Valid CargoModel cargo,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
@@ -98,12 +96,10 @@ public class CargosController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        if (cargoService.getCargoByNome(cargoDTO.getNome()) != null) {
+        if (cargoService.getCargoByNome(cargo.getNome()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Collections.singletonMap("message", "Cargo já cadastrado"));
         }
-        var cargo = new CargoModel();
-        BeanUtils.copyProperties(cargoDTO, cargo);
 
         cargoService.cadastrarCargo(cargo);
 
@@ -114,7 +110,7 @@ public class CargosController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCargo(
             @PathVariable Long id,
-            @RequestBody @Valid CargoDTO cargoDTO,
+            @RequestBody @Valid CargoModel cargo,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
@@ -133,13 +129,10 @@ public class CargosController {
                     .body(Collections.singletonMap("message", "Cargo não encontrado"));
         }
 
-        if (cargoService.getCargoByNome(cargoDTO.getNome()) != null) {
+        if (cargoService.getCargoByNome(cargo.getNome()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Collections.singletonMap("message", "Cargo já cadastrado"));
         }
-
-        var cargo = new CargoModel();
-        BeanUtils.copyProperties(cargoDTO, cargo);
 
         cargoService.atualizarCargo(id, cargo);
 

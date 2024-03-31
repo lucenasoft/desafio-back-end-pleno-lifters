@@ -2,6 +2,7 @@ package com.desafio.urna.Services;
 
 import com.desafio.urna.Models.CandidatoModel;
 import com.desafio.urna.Repositories.CandidatoRepository;
+import com.desafio.urna.Repositories.CargoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,9 @@ import java.util.Optional;
 public class CandidatoService {
     @Autowired
     private CandidatoRepository candidatoRepository;
+
+    @Autowired
+    private CargoRepository cargoRepository;
 
     public Page<CandidatoModel> getAllCandidatos(Pageable pageable) {
         return candidatoRepository.findAll(pageable);
@@ -28,7 +32,8 @@ public class CandidatoService {
     }
 
     @Transactional
-    public void saveCandidato(CandidatoModel candidato) {
+    public void saveCandidato(CandidatoModel candidato, Long cargoId) {
+        candidato.setCargo(cargoRepository.getReferenceById(cargoId));
         candidatoRepository.save(candidato);
     }
 

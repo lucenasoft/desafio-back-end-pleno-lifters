@@ -1,7 +1,5 @@
 package com.desafio.urna.Controllers;
 
-import com.desafio.urna.Dtos.EleitorDTO;
-import com.desafio.urna.Dtos.VotoDTO;
 import com.desafio.urna.Errors.ErrorResponse;
 import com.desafio.urna.Models.EleitorModel;
 import com.desafio.urna.Models.VotoModel;
@@ -11,11 +9,11 @@ import com.desafio.urna.Services.VotoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,7 +90,7 @@ public class EleitorController {
     })
     @PostMapping("/")
     public ResponseEntity<Object> createEleitor(
-            @RequestBody @Valid EleitorDTO eleitorDTO,
+            @RequestBody @Valid EleitorModel eleitor,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
@@ -106,14 +104,11 @@ public class EleitorController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        if (eleitorService.getEleitorByNome(eleitorDTO.getNome()) != null) {
+        if (eleitorService.getEleitorByNome(eleitor.getNome()) != null) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", "Eleitor já existe"));
         }
-        var eleitor = new EleitorModel();
-        BeanUtils.copyProperties(eleitorDTO, eleitor);
-
         eleitorService.saveEleitor(eleitor);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -133,7 +128,7 @@ public class EleitorController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateEleitor(
             @PathVariable Long id,
-            @RequestBody @Valid EleitorDTO eleitorDTO,
+            @RequestBody @Valid EleitorModel eleitor,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
@@ -147,20 +142,18 @@ public class EleitorController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        Optional<EleitorModel> eleitor = eleitorService.getEleitorById(id);
-        if (eleitor.isEmpty()) {
+        if (eleitorService.getEleitorById(id).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("message", "Eleitor não encontrado"));
         }
 
-        if (eleitorService.getEleitorByNome(eleitorDTO.getNome()) != null) {
+        if (eleitorService.getEleitorByNome(eleitor.getNome()) != null) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", "Nome de eleitor já existe"));
         }
 
-        BeanUtils.copyProperties(eleitorDTO, eleitor.get());
-        eleitorService.saveEleitor(eleitor.get());
+        eleitorService.saveEleitor(eleitor);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Collections.singletonMap("message", "Eleitor atualizado com sucesso"));
@@ -198,7 +191,7 @@ public class EleitorController {
     })
     public ResponseEntity<Object> votar(
             @PathVariable Long id,
-            @RequestBody @Valid VotoDTO votoDTO,
+            @RequestBody @Valid VotoModel voto,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
@@ -218,15 +211,12 @@ public class EleitorController {
                     .body(Collections.singletonMap("message", "Eleitor não encontrado"));
         }
 
-        var candidato = candidatoService.getCandidatoById(votoDTO.getCandidato().getId());
+        var candidato = candidatoService.getCandidatoById(voto.getCandidato().getId());
         if (candidato.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("message", "Candidato não encontrado"));
         }
 
-        var voto = new VotoModel();
-        voto.setEleitor(eleitor.get());
-        voto.setCandidato(candidato.get());
         votoService.saveVoto(voto);
 
         return ResponseEntity.status(HttpStatus.CREATED)

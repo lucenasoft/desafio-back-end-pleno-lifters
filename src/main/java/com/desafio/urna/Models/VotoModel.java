@@ -1,11 +1,13 @@
 package com.desafio.urna.Models;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 @Entity(name = "voto")
 public class VotoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
     private Long id;
 
     @ManyToOne

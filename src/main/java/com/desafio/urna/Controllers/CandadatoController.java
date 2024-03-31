@@ -1,8 +1,8 @@
 package com.desafio.urna.Controllers;
-import com.desafio.urna.Dtos.CandidatoDTO;
 import com.desafio.urna.Errors.ErrorResponse;
 import com.desafio.urna.Models.CandidatoModel;
 import com.desafio.urna.Services.CandidatoService;
+import com.desafio.urna.Services.CargoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +29,9 @@ import java.util.*;
 public class CandadatoController {
     @Autowired
     private CandidatoService candidatoService;
+
+    @Autowired
+    private CargoService cargoService;
 
     @Operation(summary = "Retorna todos os candidatos")
     @ApiResponses(value = {
@@ -78,7 +80,8 @@ public class CandadatoController {
     })
     @PostMapping("/")
     public ResponseEntity<Object> createCandidato(
-            @RequestBody @Valid CandidatoDTO candidatoDTO,
+            @RequestBody @Valid CandidatoModel candidato,
+            @RequestBody Long cargoId,
             BindingResult bindingResult
     ) {
 
@@ -93,15 +96,16 @@ public class CandadatoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        if (candidatoService.getCandidatoByNome(candidatoDTO.getNome()) != null)
+        if (candidatoService.getCandidatoByNome(candidato.getNome()) != null)
             return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap("message", "Nome de candidato já existe"));
 
-        var candidato = new CandidatoModel();
-        BeanUtils.copyProperties(candidatoDTO, candidato);
+        if (cargoService.getCargoById(cargoId).isEmpty()) return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Collections.singletonMap("message", "Cargo não encontrado"));
 
-        candidatoService.saveCandidato(candidato);
+        candidatoService.saveCandidato(candidato, cargoId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap("message", "Candidato criado com sucesso"));
@@ -120,7 +124,7 @@ public class CandadatoController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCandidato(
             @PathVariable(value = "id") Long id,
-            @RequestBody @Valid CandidatoDTO candidatoDTO,
+            @RequestBody @Valid CandidatoModel candidato,
             BindingResult bindingResult
             ) {
         Optional<CandidatoModel> candidatoExistente = candidatoService.getCandidatoById(id);
@@ -139,12 +143,9 @@ public class CandadatoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        if (candidatoService.getCandidatoByNome(candidatoDTO.getNome()) != null) return ResponseEntity
+        if (candidatoService.getCandidatoByNome(candidato.getNome()) != null) return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap("message", "Nome de candidato já existe"));
-
-        CandidatoModel candidato = new CandidatoModel();
-        BeanUtils.copyProperties(candidatoDTO, candidato);
 
         candidatoService.updateCandidato(id, candidato);
 
