@@ -25,7 +25,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/candidatos")
-@Tag(name = "Candidatos", description = "API para gerenciamento de candidatos")
+@Tag(name = "Candidatos", description = "Endpoints para gerenciamento de candidatos")
 @CrossOrigin(origins = "*")
 public class CandadatoController {
     @Autowired
@@ -34,7 +34,7 @@ public class CandadatoController {
     @Operation(summary = "Retorna todos os candidatos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Candidatos retornados com sucesso",
-                    content = {@Content(mediaType = "application/json")}),
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Nenhum candidato encontrado",
                     content = @Content(mediaType = "application/json"))
     })
@@ -53,7 +53,7 @@ public class CandadatoController {
     @Operation(summary = "Retorna um candidato pelo id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Candidato retornado com sucesso",
-                    content = {@Content(mediaType = "application/json")}),
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Candidato não encontrado",
                     content = @Content(mediaType = "application/json"))
     })
@@ -70,7 +70,7 @@ public class CandadatoController {
     @Operation(summary = "Cria um novo candidato")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Candidato criado com sucesso",
-                    content = {@Content(mediaType = "application/json")}),
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "400", description = "Erro na requisição",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "409", description = "Candidato já existe",
@@ -80,7 +80,7 @@ public class CandadatoController {
     public ResponseEntity<Object> createCandidato(
             @RequestBody @Valid CandidatoDTO candidatoDTO,
             BindingResult bindingResult
-            ) {
+    ) {
 
         if (bindingResult.hasErrors()) {
             List<String> errors = new ArrayList<>();
@@ -93,7 +93,8 @@ public class CandadatoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        if (candidatoService.getCandidatoByNome(candidatoDTO.getNome()) != null) return ResponseEntity
+        if (candidatoService.getCandidatoByNome(candidatoDTO.getNome()) != null)
+            return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap("message", "Nome de candidato já existe"));
 
@@ -109,7 +110,7 @@ public class CandadatoController {
     @Operation(summary = "Atualiza um candidato")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Candidato atualizado com sucesso",
-                    content = {@Content(mediaType = "application/json")}),
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "400", description = "Erro na requisição",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Candidato não encontrado",
@@ -156,7 +157,7 @@ public class CandadatoController {
     @Operation(summary = "Deleta um candidato")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Candidato deletado com sucesso",
-                    content = {@Content(mediaType = "application/json")}),
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Candidato não encontrado",
                     content = @Content(mediaType = "application/json"))
     })
