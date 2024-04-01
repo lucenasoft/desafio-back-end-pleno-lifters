@@ -80,7 +80,7 @@ public class CandadatoController {
     })
     @PostMapping("/")
     public ResponseEntity<Object> createCandidato(
-            @RequestBody @Valid CandidatoModel candidato,
+            @RequestBody CandidatoModel candidato,
             @RequestBody Long cargoId,
             BindingResult bindingResult
     ) {
@@ -105,7 +105,8 @@ public class CandadatoController {
                 .status(HttpStatus.NOT_FOUND)
                 .body(Collections.singletonMap("message", "Cargo não encontrado"));
 
-        candidatoService.saveCandidato(candidato, cargoId);
+        candidato.setCargo(cargoService.getCargoById(cargoId).get());
+        candidatoService.saveCandidato(candidato);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap("message", "Candidato criado com sucesso"));

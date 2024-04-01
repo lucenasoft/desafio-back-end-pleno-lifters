@@ -16,9 +16,6 @@ public class CandidatoService {
     @Autowired
     private CandidatoRepository candidatoRepository;
 
-    @Autowired
-    private CargoRepository cargoRepository;
-
     public Page<CandidatoModel> getAllCandidatos(Pageable pageable) {
         return candidatoRepository.findAll(pageable);
     }
@@ -32,8 +29,7 @@ public class CandidatoService {
     }
 
     @Transactional
-    public void saveCandidato(CandidatoModel candidato, Long cargoId) {
-        candidato.setCargo(cargoRepository.getReferenceById(cargoId));
+    public void saveCandidato(CandidatoModel candidato) {
         candidatoRepository.save(candidato);
     }
 
